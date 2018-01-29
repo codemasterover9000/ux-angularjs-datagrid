@@ -4,7 +4,7 @@ exports.datagrid.events.ON_BEFORE_TOGGLE_SORT = "datagrid:onBeforeToggleSort";
 exports.datagrid.events.ON_AFTER_TOGGLE_SORT = "datagrid:onAfterToggleSort";
 exports.datagrid.events.CLEAR_SORTS = "datagrid:clearSorts";
 exports.datagrid.events.CLEAR_ALL_SORTS = "datagrid:clearAllSorts";
-angular.module('ux').service('sortStatesModel', ['$location', '$rootScope', function ($location, $rootScope) {
+angular.module('ux').factory('sortStatesModel', ['$location', '$rootScope', function ($location, $rootScope) {
     /**************************************************************************************
      * ##<a name="sortStatesModel">sortStatesModel</a>##
      * ColumnStates for sorting. Singleton.
@@ -443,7 +443,7 @@ angular.module('ux').service('sortStatesModel', ['$location', '$rootScope', func
         api.sortOptions = sortOptions;
 
         return api;
-    }());
+    });
     return exports.datagrid.sortStatesModel;
 }]);
 
@@ -454,13 +454,30 @@ angular.module('ux').service('sortStatesModel', ['$location', '$rootScope', func
  * It stores the sorted state on the sortStatesModel to keep around until cleared.
  * @param {Object} sortStatesModel
  */
-angular.module('ux').factory('sortModel', ['sortStatesModel', function (sortStatesModel) {
+angular.module('ux').factory('sortModel', ['sortStatesModel', '$state', function (sortStatesModelCons, $state) {
 
     return ['inst', function sortModel(inst) {
         // cache is the stored sort values. It needs to be cleared if the data changes.
         var result = exports.logWrapper('sortModel', {}, 'blue', inst), sorts = {}, original, cache = {},
             options = inst.options.sortModel || {}, lastSortResult;
 
+        var gridName = inst.name;
+        var sortStatesModel = $state.current.sortStatesModels && $state.current.sortStatesModels[gridName];
+        if (!sortStatesModel)
+        {
+            sortStatesModel = new sortStatesModelCons();
+            sortStatesModel.getCurrentPath = function () 
+            {
+                return gridName;
+            };
+
+            if (!$state.current.sortStatesModels)
+            {
+                $state.current.sortStatesModels = {};
+            }
+            $state.current.sortStatesModels[gridName] = sortStatesModel; 
+        }
+        
         /**
          * ###<a name="addSortColumn">addSortColumn</a>###
          * add a column so that it's sort state can be toggled and used.
@@ -702,8 +719,10 @@ angular.module('ux').factory('sortModel', ['sortStatesModel', function (sortStat
             inst = null;
         };
 
-        inst.unwatchers.push(inst.scope.$on(exports.datagrid.events.CLEAR_SORTS, exports.datagrid.sortStatesModel.clear));
-        inst.unwatchers.push(inst.scope.$on(exports.datagrid.events.CLEAR_ALL_SORTS, exports.datagrid.sortStatesModel.clearAll));
+/*
+        inst.unwatchers.push(inst.scope.$on(exports.datagrid.events.CLEAR_SORTS, sortStatesModel.clear));
+        inst.unwatchers.push(inst.scope.$on(exports.datagrid.events.CLEAR_ALL_SORTS, sortStatesModel.clearAll));
+*/
 
         inst.sortModel = result;
         addSortsFromOptions();
