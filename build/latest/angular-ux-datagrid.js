@@ -1,6 +1,6 @@
 /*!
-* ux-angularjs-datagrid v.1.6.5
-* (c) 2017, Obogo
+* ux-angularjs-datagrid v.1.6.8
+* (c) 2018, Obogo
 * https://github.com/obogo/ux-angularjs-datagrid
 * License: MIT.
 */
@@ -14,8 +14,8 @@ if (typeof define === "function" && define.amd) {
 }
 
 /*!
-* ux-angularjs-datagrid v.1.6.5
-* (c) 2017, Obogo
+* ux-angularjs-datagrid v.1.6.8
+* (c) 2018, Obogo
 * https://github.com/obogo/ux-angularjs-datagrid
 * License: MIT.
 */
@@ -496,7 +496,7 @@ exports.datagrid = {
      * ###<a name="version">version</a>###
      * Current datagrid version.
      */
-    version: "1.6.5",
+    version: "1.6.8",
     /**
      * ###<a name="isIOS">isIOS</a>###
      * iOS does not natively support smooth scrolling without a css attribute. `-webkit-overflow-scrolling: touch`
@@ -1941,7 +1941,7 @@ function Datagrid(scope, element, attr, $compile, $timeout) {
             for (var i = 0; i < len; i += 1) {
                 var attr = attrs[i];
                 // copy the attr from el to clone
-                if (attr.name !== "class" && clone.attr(attr.name) !== attr.value) {
+                if (attr.name !== "class" && clone.attr(attr.name) !== attr.value && !(attr.name === "style" && !attr.value)) {
                     clone.attr(attr.name, attr.value);
                 }
             }
